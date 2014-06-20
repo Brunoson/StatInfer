@@ -1,0 +1,37 @@
+# T-test
+```{r}
+library(UsingR)
+data(father.son)
+t.test(father.son$sheight - father.son$fheight)
+```
+
+# P-value
+If P-value < alpha, then reject null hypothesis ( or not by chance)
+##Example 1
+*Set null hypothesis*
+H_null: x = 0.5
+H_alt: x>0.5
+alpha = 0.05 (type 1 error = 0.05)
+*Calculate prob P( H_alt value | H_null right) if this P is too low then alt & null can't belong together, so alt really oppose null*
+```{r}
+pbinom(6, size = 8, prob = 0.5, lower.tail = FALSE)
+#0.035 < 0.05 -> reject
+```
+##Example 2
+H_null: lambda(rate) = 0.05 ; lambda*100=5
+H_alt: lambda>0.05
+```{r}
+ppois(9, 5, lower.tail = FALSE) # 0.031
+#Under null hypothesis, alt right is 0.031 < 0.05 -> reject
+```
+
+
+# Power ( prob of reject H_null when is false)
+```{r}
+sigma <- 10; mu_0 = 0; mu_a = 2; n <- 100; alpha = .05
+plot(c(-3, 6),c(0, dnor, type = "n", frame = FALSE, xlab = "Z value", ylab = "")
+xvals <- seq(-3, 6, length = 1000)
+lines(xvals, dnorm(xvals), type = "l", lwd = 3)
+lines(xvals, dnorm(xvals, mean = sqrt(n) * (mu_a - mu_0) / sigma), lwd =3)
+abline(v = qnorm(1 - alpha))
+```

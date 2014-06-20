@@ -1,0 +1,40 @@
+# Confident interval of sample's average
+
+## Avg of sample nearly equal mean of population when n increase & sample mean is consistent
+```{r}
+n <- 10000
+means <- cumsum(rnorm(n))/(1:n)
+plot(1:n, means, type = "l", lwd = 2, frame = FALSE, ylab = "cumulative means",
+     xlab = "sample size")
+abline(h = 0)
+```
+
+## For normal distribution: average of sample's interval
+```{r}
+library(UsingR)
+data(father.son)
+x <- father.son$sheight
+(mean(x) + c(-1, 1) * qnorm(0.975) * sd(x)/sqrt(length(x)))/12
+```
+
+## For propotion:
+```r
+mean(Xi_)=p
+var(Xi_)=p*(1-p)
+```
+100 likely voters, 56 vote for A
+```{r}
+p = .56
+#sample_avg +/- z_alphe * sqrt(var/n)
+p + c(-1,1) * qnorm(.975) * sqrt(p*(1-p) / 100)
+```
+
+## For poisson
+```r
+mean(lambda_) = X/t
+var(lambda_) = lambda/t
+```
+```{r}
+poisson.test(x = 5, T = 94.32)$conf
+```
+

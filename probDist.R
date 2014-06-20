@@ -31,3 +31,27 @@ sd(sapply(1:1000,unif100mean))
 ppois(q=10,lambda=5*3)
 #Ques 11:
 choose(9,3)
+
+#Confident interval sample mean
+library(UsingR)
+data(father.son)
+x <- father.son$sheight
+(mean(x) + c(-1, 1) * qnorm(0.975) * sd(x)/sqrt(length(x)))
+#Confident interval sample sd
+library(UsingR)
+data(father.son)
+x <- father.son$sheight
+s <- sd(x)
+n <- length(x)
+round(sqrt((n - 1) * s^2/qchisq(c(0.975, 0.025), n - 1)), 3)
+#Confident interval sample mean: X +/- t*s/sqrt(n) (for roughly symetric and mound shaped dist)
+#Use for paired diff data
+data(sleep)
+head(sleep,n=20)
+g1 <- sleep$extra[1:10]
+g2 <- sleep$extra[11:20]
+difference <- g2 - g1
+mn <- mean(difference)
+s <- sd(difference)
+n <- 10
+mn + c(-1, 1) * qt(0.975, n - 1) * s/sqrt(n)

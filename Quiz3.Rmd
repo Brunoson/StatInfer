@@ -1,0 +1,105 @@
+# Ques1 -- sample average -> population mean (02_03_tCls.pdf - 9/13)
+```r
+In a population of interest, a sample of 9 men yielded a sample average brain volume of 1,100cc and a standard deviation of 30cc. What is a 95% Student's T confidence interval for the mean brain volume in this new population?
+```
+n=9 men, mean=1100cc brain, sd=30cc
+95% confident interval of mean
+```{r}
+1100 + qt(p=.975,df=9-1)*c(-1,1)*(30/sqrt(9))
+```
+
+#Ques2 -- avg sd between 2 group
+```r
+A diet pill is given to 9 subjects over six weeks. The average difference in weight (follow up - baseline) is -2 pounds. What would the standard deviation have to be for the 95% T confidence interval to lie entirely below 0?
+```
+```{r}
+n = 9
+baseline = 6
+avg_diff_weight = -2
+library(bbmle)
+validate_sd = function(sd){(avg_diff_weight + c(-1,1)*qt(.975,n-1)*(sd/sqrt(n)))}
+sapply(c(2.1,2.6,0.3,1.5),validate_sd)
+#choose 2.6 because upper level closest to 0
+```
+
+#Ques3 -- Pairing
+```r
+In an effort to improve efficiency, hospital administrators are evaluating a new triage system for their emergency room. In an validation study of the system, 5 patients were tracked in a mock ER under both the new and old triage system. Their waiting times were recorded. Would it be better to use an independent group or paired T confidence interval in this setting?
+```
+Using pair
+
+#Ques 4
+```r
+Refer to the setting of the previous question. To further test the system, administrators selected 20 nights and randomly assigned the new triage system to be used on 10 nights and the standard system on the remaining 10 nights. They calculated the nightly median waiting time (MWT) to see a physician. The average MWT for the new system was 3 hours with a variance of 0.60 while the average MWT for the old system was 5 hours with a variance of 0.68. Consider the 95% confidence interval estimate for the differences of the mean MWT associated with the new system. Assume a constant variance. What is the interval? Subtract in this order (New System - Old System).
+```
+new = N(x_=3,var_=0.6) n_new = 10
+old = N(x_=5,var=0.68) n_old = 10
+95%
+```{r}
+n_new = n_old = 10
+med_avg_new= 3
+med_avg_old = 5
+med_var_new = .6
+med_var_old = .68
+med_avg_between = med_avg_new - med_avg_old
+df = ((med_var_new / n_new + med_var_old / n_old)^2) /
+      ((med_var_new/n_new)^2/(n_new-1) + (med_var_old/n_old)^2/(n_old-1))
+t = qt(p=.975,df=df)
+med_avg_between + c(-1,1)*sqrt(med_var_new/n_new + med_var_old/n_old)*t
+```
+
+
+#Ques 5
+```r
+Suppose that you create a 95% T confidence interval. You then create a 90% interval using the same data. What can be said about the 90% interval with respect to the 95% interval?
+```
+The interval will be narrower.
+
+#Ques 6
+```r
+To further test a hospital triage system, administrators selected 200 nights and randomly assigned a new triage system to be used on 100 nights and a standard system on the remaining 100 nights. They calculated the nightly median waiting time (MWT) to see a physician. The average MWT for the new system was 4 hours with a standard deviation of .5 hours while the average MWT for the old system was 6 hours with a standard deviation of 2 hours. Consider the hypothesis of a decrease in the mean MWT associated with the new treatment. What does the interval suggest vis a vis this hyptothesis?
+```
+
+```{r}
+n_new = n_old = 100
+med_avg_new= 4
+med_avg_old = 6
+med_var_new = .5^2
+med_var_old = 2^2
+med_avg_between = med_avg_new - med_avg_old
+df = ((med_var_new / n_new + med_var_old / n_old)^2) /
+      ((med_var_new/n_new)^2/(n_new-1) + (med_var_old/n_old)^2/(n_old-1))
+t = qt(p=.975,df=df)
+-med_avg_between + c(-1,1)*sqrt(med_var_new/n_new + med_var_old/n_old)*t
+```
+
+#Ques 7
+```r
+Suppose that 18 obese subjects were randomized, 9 each, to a new diet pill and a placebo. Subjects’ body mass indices (BMIs) were measured at a baseline and again after having received the treatment or placebo for four weeks. The average difference from follow-up to the baseline (followup - baseline) was −3 kg/m2 for the treated group and 1 kg/m2 for the placebo group. The corresponding standard deviations of the differences was 1.5 kg/m2 for the treatment group and 1.8 kg/m2 for the placebo group. Does the change in BMI over the four week period appear to differ between the treated and placebo groups? Assuming normality of the underlying data and a common population variance, calculate the relevant *90%* t confidence interval. Subtract in the order of (Treated - Placebo) with the smaller (more negative) number first.
+```
+```{r}
+n_new = n_old = 9
+med_avg_new= -3
+med_avg_old = 1
+med_var_new = 1.5^2
+med_var_old = 1.8^2
+t_confident_interval = .9
+tp = (1-t_confident_interval)/2 + t_confident_interval
+med_avg_between = med_avg_new - med_avg_old
+df = ((med_var_new / n_new + med_var_old / n_old)^2) /
+      ((med_var_new/n_new)^2/(n_new-1) + (med_var_old/n_old)^2/(n_old-1))
+t = qt(p=tp,df=df)
+med_avg_between + c(-1,1)*sqrt(med_var_new/n_new + med_var_old/n_old)*t
+```
+
+#Ques8
+```r
+Consider a discrete distribution with an unknown parameter. The maximum likelihood estimate gives:
+```
+The value of the parameter that makes the observed data most probable given the model.
+
+#Ques9
+```r
+To obtain the posterior in Bayesian inference we:
+
+```

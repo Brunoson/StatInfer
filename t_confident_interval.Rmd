@@ -1,0 +1,22 @@
+
+*There is connection between random varible and sample*
+##Confident interval for standard deviation (normal distribution)
+```{r}
+library(UsingR)
+data(father.son)
+x <- father.son$sheight
+s <- sd(x)
+n <- length(x)
+round(sqrt((n - 1) * s^2/qchisq(c(0.975, 0.025), n - 1)), 3)
+```
+
+##Confident interval for mean (normal distribution) ( For pair observations )
+g1 <- sleep$extra[1:10]
+g2 <- sleep$extra[11:20]
+difference <- g2 - g1
+mn <- mean(difference)
+s <- sd(difference)
+n <- 10
+mn + c(-1, 1) * qt(0.975, n - 1) * s/sqrt(n)
+t.test(difference)$conf.int
+

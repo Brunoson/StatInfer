@@ -1,0 +1,26 @@
+# Estimate difference between 2 sample variance (2 normal variables)
+## Example 1 (Variance equal assumption)
+```{r}
+# 8 OC case, 21 C case
+n_oc = 8
+avg_X_oc = 132.86
+s_oc = 15.34
+
+n_c = 21
+avg_X_c = 127.44
+s_c = 18.23
+
+# Manually
+sp <- sqrt(((n_oc - 1) * s_oc^2 + (n_c - 1) * s_c^2)/(n_oc + n_c - 2))
+avg_X_oc - avg_X_c + c(-1, 1) * qt(0.975, n_oc + n_c - 2) * sp * (1/n_oc + 1/n_c)^0.5
+```
+
+##Example 2
+```{r}
+data(sleep)
+x1 <- sleep$extra[sleep$group == 1]
+x2 <- sleep$extra[sleep$group == 2]
+t.test(x1,x2,paired=F,var.equal=F)$conf # Variance x1 == variance x2 assumption
+t.test(x1,x2,paired=F,var.equal=T)$conf # Variance x1 <> variance x2
+```
+

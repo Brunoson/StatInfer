@@ -1,0 +1,122 @@
+```{r,echo=FALSE}
+opts_chunk$set(cache.extra = list(R.version, sessionInfo(), format(Sys.Date(), '%Y-%m'))
+```
+
+```{r,cache=TRUE}
+set.seed(1111)
+normalPopulation = rnorm(10^7,mean=10,sd=2)
+```
+
+```{r}
+#Collecting large case from a distribution with mean muy, n times
+#for each time we have random variable Xi, then
+#expected value of avg of Xi is muy 
+#Expected <> equal, expect is JUST expect
+samples = sapply(1:100000,function(dumpb){rnorm(200,mean=10,sd=2)})
+E_Xcross = apply(samples,1,mean)
+V_Xross = var(E_Xcross)
+V_Xross / (2^2/100000)
+
+samples_var_S = apply(samples,2,var)
+
+```
+
+```r
+Sens = P(+|D)
+Spec = P(-|Dc)
+P(D|+) = Sens*Prevalent / 
+          Sens*Prevalent + (1 - Specs)(1-Prelavent)
+          
+post_test_odd = DLR_pos * pre_test_odd
+```
+```{r}
+sens = .997
+spec = .985
+prevalent = .001
+P_dig_pos = sens*prevalent /
+          (sens*prevalent + (1-spec)*(1-prevalent))
+P_dig_pos
+```
+
+
+
+```{r}
+n <- 5
+pvals <- seq(0, 1, length = 1000)
+plot(c(0, 1), c(0, 1.2), type = "n", frame = FALSE, xlab = "p", ylab = "likelihood")
+text((0 : n) /n, 1.1, as.character(0 : n))
+sapply(0 : n, function(x) {
+  phat <- x / n
+  if (x == 0) lines(pvals, ( (1 - pvals) / (1 - phat) )^(n-x), lwd = 3)
+  else if (x == n) lines(pvals, (pvals / phat) ^ x, lwd = 3)
+  else lines(pvals, (pvals / phat ) ^ x * ( (1 - pvals) / (1 - phat) ) ^ (n-x), lwd = 3)
+  }
+  )
+title(paste("Likelihoods for n = ", n))
+```
+
+#MLE
+```{r}
+library(bbmle)
+set.seed(1001)
+N = 100
+x <- runif(N)
+y <- 5 * x + 3 + rnorm(N)
+fit <- lm(y ~ x)
+summ = summary(fit)
+summ$sigma
+LL <- function(beta0, beta1, mu, sigma) {
+  R = y - x * beta1 - beta0
+  R = suppressWarnings(dnorm(R, mu, sigma, log = TRUE))
+  -sum(R)
+}
+fit1 <- mle2(LL, start = list(beta0 = 4, beta1 = 2, mu = 0, sigma=1))
+```
+
+
+```{r}
+n = 5
+x = 2
+pvals <- seq(0, 1, length = 1000)
+#outs <- (pvals ) ^ x * (1 - pvals) ^ (n-x) 
+plot(pvals,outs)
+library(bbmle)
+LL <- function(pvals){
+  -sum((pvals ) ^ x * (1 - pvals) ^ (n-x))
+}
+bbmle::mle2(LL,start=list(pvals=0.1))
+```
+
+1st sampling: X1 | X2 | X3 | X4 | ... | Xn
+1st sampling: X1 | X2 | X3 | X4 | ... | Xn
+1st sampling: X1 | X2 | X3 | X4 | ... | Xn
+1st sampling: X1 | X2 | X3 | X4 | ... | Xn
+1st sampling: X1 | X2 | X3 | X4 | ... | Xn
+avg of Xi   : X1_| X2_| X3_| X4_| ... | Xn_
+Xi_ has mean muy, variance/sqrt(n) of Xi
+If n increase to very large, Xi is same for all i ( var ==0 ) and mean is mean of Xi
+Sampling very large number of case many times -> mean of population (Central Limit Theorem)
+
+```{r}
+times = 1000
+n = 10000
+xi = sapply(1:times,function(i){rnorm(n)})
+xi_hat_cross = apply(xi,2,mean)
+xi_hat_cross / sqrt(n)
+1/sqrt(n)
+library(bbmle)
+LL <- function(muy,sigma){
+  -sum(dnorm(xi_hat_cross,mean=muy,sd=sigma,log=T))
+}
+mle2(LL,start=list(muy=0.1,sigma=0.01))
+```
+
+
+```{r}
+library(UsingR)
+data(father.son)
+x <- father.son$sheight
+s <- sd(x)
+n <- length(x)
+round(sqrt((n - 1) * s^2/qchisq(c(0.975, 0.025), n - 1)), 3)
+```

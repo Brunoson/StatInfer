@@ -1,0 +1,173 @@
+1,6,7,11 wrong
+#Ques1 -- find attendent significant
+```r
+In a random sample of 100 patients at a clinic, you would like to test whether the mean RDI is x or more using a one sided 5% type 1 error rate. The sample mean RDI had a mean of 12 and a standard deviation of 4. What is the largest value of x (H0:μ=x versus Ha:μ>x) would you reject for?
+```
+```{r}
+n = 100
+type_1_error = .05 # 1 side
+sample_mean = 12
+sample_sd = 4
+test_means = c(12.66,10.84,11.34,9.30)
+sapply(
+  test_means,
+  function(test_mean){
+    round(pnorm(q=sample_mean,mean=test_mean,sd=sample_sd/sqrt(n),lower.tail=F),7)
+    }
+  )
+# 11.34
+#test manually
+#Assumpt that our sample mean in alternative hypothesis is extremely hard to happend when in condition of null hypothesis is true.
+```
+
+#Ques2
+```r
+A pharmaceutical company is interested in testing a potential blood pressure lowering medication. Their first examination considers only subjects that received the medication at baseline then two weeks later. The data are as follows (SBP in mmHg)
+Subject   Baseline 	Week 2
+1 	140 	132
+2 	138 	135
+3 	150 	151
+4 	148 	146
+5 	135 	130
+Consider testing the hypothesis that there was a mean reduction in blood pressure? Give the P-value for the associated two sided test. 
+```
+```{r}
+baseline = c(140,138,150,148,135)
+week2 = c(132,135,151,146,130)
+t.test(baseline - week2,alternative="greater") # p-value < 0.05 -> reject null -> mean greater than 0
+t.test(baseline - week2,alternative="less") # p-value > 0.9567 -> can't reject null -> mean equal zero
+t.test(baseline,week2,paired=T)
+```
+
+#Ques3
+```r
+A sample of 9 men yielded a sample average brain volume of 1,100cc and a standard deviation of 30cc. What is the complete set of values of μ0 that a test of H0:μ=μ0 would fail to reject the null hypothesis in a two sided 5% Students t-test?
+```
+```{r}
+sample_avg = 1100
+sample_sd = 30
+n = 9
+type_1_error = .025 # 1 side
+sample_avg + c(-1,1)*2.306*sample_sd/sqrt(n)
+sample_avg + c(-1,1)*qt(p=1-type_1_error,df=n-1)*(sample_sd/sqrt(n))
+#1076.94 1123.06
+```
+
+#Ques4
+```r
+Researchers conducted a blind taste test of Coke versus Pepsi. Each of four people was asked which of two blinded drinks given in random order that they preferred. The data was such that 3 of the 4 people chose Coke. Assuming that this sample is representative, report a P-value for a test of the hypothesis that Coke is preferred to Pepsi using a one sided exact test.
+```
+```{r}
+pbinom(2,4,0.5,lower.tail=F) # p-value or type 1 error = 31.25%
+#P( X>C | muy=null hypo) = type 1 error = p-value
+```
+
+#Ques5
+```r
+Infection rates at a hospital above 1 infection per 100 person days at risk are believed to be too high and are used as a benchmark. A hospital that had previously been above the benchmark recently had 10 infections over the last 1,787 person days at risk. About what is the one sided P-value for the relevant test of whether the hospital is *below* the standard?
+```
+```r
+Null hypothesis: P = 0.5
+Alternative hypothesis: P>0.5
+```
+```{r}
+#1st method
+base_rate = 1/100
+event_on_base_rate_on_data = 1787*base_rate
+ppois(q=10,lambda=event_on_base_rate_on_data) # p-value = 0.03237153
+#2nd method
+pbinom(q=10,size=1787,prob=base_rate)
+```
+
+#Ques6
+```r
+Suppose that 18 obese subjects were randomized, 9 each, to a new diet pill and a placebo. Subjects’ body mass indices (BMIs) were measured at a baseline and again after having received the treatment or placebo for four weeks. The average difference from follow-up to the baseline (followup - baseline) was −3 kg/m2 for the treated group and 1 kg/m2 for the placebo group. The corresponding standard deviations of the differences was 1.5 kg/m2 for the treatment group and 1.8 kg/m2 for the placebo group. Does the change in BMI over the two year period appear to differ between the treated and placebo groups? Assuming normality of the underlying data and a common population variance, give a pvalue for a two sided t test.
+```
+Null hypothesis: avg = 0
+Null hypothesis: avg != 0
+```{r}
+n_t = n_p = 9
+avg_t = -3 ; avg_p = 1 ;
+sd_t = 1.5 ; sd_p = 1.8;
+#sp_2 = sqrt(((n_t-1)*sd_t^2 + (n_p-1)*sd_p^2)/(n_t+n_p-2))
+#132.86 - 127.44 + c(-1, 1) * qt(0.975, 27) * sp * (1/8 + 1/21)^0.5
+#cfs = c(0.01,0.1,0.05)
+#interval = function(cf){ 
+#  c(avg_t - avg_p + c(-1,1)*qt(1-cf/2,n_t+n_p-2)*sp_2*(1/n_t+1/n_p)^0.5)
+#}
+# p-value < 0.001 because 0 is outside -7.13..-0.86, 0.01 two side interval
+#sapply(cfs,interval)
+pt(q=((avg_t - avg_p) - 0) / sqrt((sd_t^2/n_t + sd_p^2/n_p)),df=n_t-1)
+```
+#Ques7
+```r
+Brain volumes for 9 men yielded a 90% confidence interval of 1,077 cc to 1,123 cc. Would you reject in a two sided 5% hypothesis test of H0:μ=1,078? 
+```
+```{r}
+# 1077 + qt(p=.95,df=n-1)*sd == 1123 - qt(p=.95,df=n-1)*sd
+# 2*qt(p=.95,df=n-1)*sd == 1123 - 1077
+n = 9
+sd = (1123-1077)/(2*qt(p=.95,df=n-1)) 
+sample_mean = 1077 + qt(p=.95,df=n-1)*sd
+1078 + c(-1,1)*qt(p=.975,df=8)*sd 
+# 1049.478 .. 1106.522, sample mean == 1100 in interval -> cannot reject because it in range of null interval
+```
+It's impossible to tell. ( depend on variance of sample mean)
+
+#Ques8
+```r
+Researchers would like to conduct a study of 100 healthy adults to detect a four year mean brain volume loss of .01 mm3. Assume that the standard deviation of four year volume loss in this population is .04 mm3. About what would be the power of the study for a 5% one sided test versus a null hypothesis of no volume loss?
+```
+power = P( | alternative hypo)
+```{r}
+n = 100
+mean_loss = .01
+std_loss  = .04
+null_hypo = 0
+interval = .95
+power.t.test(n=100,delta=mean_loss-null_hypo,sd=std_loss,type='one.sample',alt='one.side',sig.level=.05)$power
+#Or other way (normal test)
+interval.lower = qnorm(p=.95,mean=null_hypo,sd=std_loss/sqrt(n))
+pnorm(q=interval.lower,mean=mean_loss-null_hypo,sd=std_loss/sqrt(n),lower.tail=F)
+```
+
+#Ques 9
+```r
+Researchers would like to conduct a study of n healthy adults to detect a four year mean brain volume loss of .01 mm3. Assume that the standard deviation of four year volume loss in this population is .04 mm3. About what would be the value of n needded for 90% power of type one error rate of 5% one sided test versus a null hypothesis of no volume loss?
+```
+```{r}
+power.t.test(power=.90,delta=mean_loss-null_hypo,sd=std_loss,type='one.sample',alt='one.side',sig.level=.05)
+```
+
+#Ques 10
+```r
+As you increase the type one error rate, α, what happens to power?
+```
+alpha increase -> beta decrease -> 1 - beta increase
+
+#Ques 11
+```r
+The Daily Planet ran a recent story about Kryptonite poisoning in the water supply after a recent event in Metropolis. Their usual field reporter, Clark Kent, called in sick and so Lois Lane reported the story. Researchers sampled 288 individuals and found mean blood Kryptonite levels of 44, both measured in Lex Luthors per milliliter (LL/ml). They compared this to 288 sampled individuals from Gotham city who had an average level of 42.04. About what is the Pvalue for a two sided Z test of the relevant hypothesis? Assume that the standard deviation is 12 for both groups.
+```
+```{r}
+n_1 = 288
+m_1 = 44
+m_2 = 42.04
+sd = 12
+sample_avg = m_1 - m_2
+sample_sd = sd
+null_hypo = 0
+n = n_1
+#type_1_errors = c(0.01,0.05,0.1,0.2)
+#sp = sqrt(2*(n-1)*sd^2 / (2*n-2))
+#interval = function(type_1_error){
+#  sample_avg + c(-1,1)*qt(p=1-type_1_error/2,df=2*n-2)*sqrt(1/n+1/n)*sp
+#}
+#sapply(type_1_errors,interval)
+2*pt(q=(sample_avg - null_hypo) / sqrt(2*sd^2/n),df=n-1,lower.tail=F) # 0.05
+```
+
+#Ques 12
+```r
+Suppose that a researcher performs 10 hypothesis tests and wants a familywise error rate of no more than 5%. What alpha level should she compare her pvalues to in order to ensure the desired error rate? Express it as a proportion to two decimal places.
+```

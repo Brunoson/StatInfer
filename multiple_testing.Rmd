@@ -1,0 +1,67 @@
+# Case study 1: no true positive
+*There is no connection between x,y, but sometimes p-value is large, so error in samples cant be avoid completely*
+```r
+Problem: Suppose that you perform 10,000 tests and β=0 for all of them.
+Suppose that you call all P<0.05 significant.
+The expected number of false positives is: 10,000×0.05=500 false positives. 
+```
+```{r}
+y <- rnorm(20)
+x <- rnorm(20)
+summary(lm(y~x))$coef[2,4]
+```
+```{r}
+set.seed(1010093)
+pValues <- rep(NA, 10000)
+for (i in 1:10000) {
+    y <- rnorm(20)
+    x <- rnorm(20)
+    pValues[i] <- summary(lm(y ~ x))$coeff[2, 4]
+}
+
+# Controls false positive rate: The rate at which false results (β=0) are called significant
+sum(pValues < 0.05)
+# 51 error / 1000 test -- or false positive rate = .05
+# Controls FWER:  The probability of at least one false positive Pr(V≥1)
+sum(p.adjust(pValues, method = "bonferroni") < 0.05)
+# Controls FDR: The rate at which claims of significance are false E[V / R]
+sum(p.adjust(pValues, method = "BH") < 0.05)
+# Fixing ok, no beta1 is accept
+```
+
+
+#Case study 2: 50% true positive
+```{r}
+set.seed(1010093)
+pValues <- rep(NA, 1000)
+for (i in 1:1000) {
+    x <- rnorm(20)
+    # First 500 beta=0, last 500 beta=2
+    if (i <= 500) {
+        y <- rnorm(20)
+    } else {
+        y <- rnorm(20, mean = 2 * x)
+    }
+    pValues[i] <- summary(lm(y ~ x))$coeff[2, 4]
+}
+trueStatus <- rep(c("zero", "not zero"), each = 500)
+#Expect
+```r
+    not zero    zero
+FALSE  0        500
+TRUE  500        0
+```
+```{r}
+table(pValues < 0.05, trueStatus) #Type 1 error == 24/1000 = 0.024
+# Controls FWER
+table(p.adjust(pValues, method = "bonferroni") < 0.05, trueStatus) # Type 1 error == 0,
+# type 2 error == 23/1000 = 0.023
+# Controls FDR
+table(p.adjust(pValues, method = "BH") < 0.05, trueStatus) # Type 1 error = 13/1000 = 0.013
+```
+```{r,draw}
+par(mfrow = c(1, 2))
+plot(pValues, p.adjust(pValues, method = "bonferroni"), pch = 19)
+plot(pValues, p.adjust(pValues, method = "BH"), pch = 19)
+```
+```
